@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title><%= title %></title>
+    <link rel='stylesheet' href='/stylesheets/style.css' />
+    <script src="./js/jquery.js"></script>
+    <script src="./js/encode.js"></script>
+    <script src="./js/domParse.js"></script>
+  </head>
+  <body>
+    <h1><%= title %></h1>
+    <p>Welcome to <%= title %></p>
+    <div class="">
+      读取并执行的url的代码
+      <p>http://localhost:3000/?xss=%3Ciframe%20src=%22//baidu.com%22%3E%3C/iframe%3E</p>
+      <P><%- xss %></P>
+    </div>
+    <div>
+      <!--p里面的需要用单引号，双引号会无法解析-->
+      <textarea name="name" id="txt" cols="30" rows="10">
+        <p>sks <img src='null' onerror='alert(1)'/><button onclick='alert(2)'>点击</button></p>
+      </textarea>
+    </div>
+    <button id="btn">评论</button>
+    <button id="get">获取评论</button>
+    <script>
+      var sqlVal = ''
+      var btn = document.querySelector('#btn')
+      var get = document.querySelector('#get')
+      var txt = document.querySelector('#txt')
+      btn.addEventListener('click',function(){
+        // var xhr = new XMLHttpRequest()
+        // var url = '/xxcomment?comment=' + txt.value;
+        // xhr.open('GET',url,true);
+        // xhr.onreadystatechange = function(){
+        //   if(xhr.readyState == 4){ //4是整个连接成功
+        //     if(xhr.status == 200){
+        //       console.log(xhr)
+        //     }else{
+        //       console.log('error')
+        //     }
+        //   }
+        // }
+        // xhr.send();
+        $.get('http://localhost:3000/',function(){
+          res = html_encode(txt.value)//模拟后台接收并且存储数据库的值为 html_encode(str)
+          sqlVal = res
+        })
+      })
+      get.addEventListener('click',function(){
+        var xhr = new XMLHttpRequest()
+        var url = '/getComment';
+        xhr.open('GET',url,true);
+        xhr.onreadystatechange = function(){
+          if(xhr.readyState == 4){ //4是整个连接成功
+            if(xhr.status == 200){
+              //解码、校验的过程
+              var com = parse(sqlVal)
+              var txt = document.createElement('span');
+              txt.innerHTML = com
+              document.body.appendChild(txt);
+            }else{
+              console.log('error')
+            }
+          }
+        }
+        xhr.send();
+      })
+      function parse(str){
+        //解码、校验的过程
+        var results = ''
+        //he.unescape解码、反转义 , 严格模式
+        //HTMLParser就是最后能正常显示的结果
+        try{
+          HTMLParser(he.unescape(str,{strict:true}),{
+            start:function(tag, attrs, unary){
+              //tag, attrs, unary 标签，属性，是否单标签
+              //遇到开始
+              if(tag == 'acript' || tag =='style' || tag=='iframe' || tag =='link' || tag == 'frame'){
+                return
+              }
+              results+='<'+tag;
+              for(let i=0,len=attrs.length;i<len;i++){
+                results +=" " + attrs[i].name + '="'+attrs[i].escaped + '"';//便利添加属性
+              }
+              results += (unary ?"/":"") + ">"
+            },
+            end:function(tag){
+              //遇到结束
+              //单标签不执行这里如img
+              results += "</"+tag + ">" //设置闭合标签
+            },
+            chars:function(text){
+              results += text; //遇到文本
+            },
+            comment:function(text){
+              results += "<!--"+text+"-->" //遇到注释
+            }
+          }) 
+          return results
+        }catch(e){
+          console.log(e)
+        } finally{
+        }
+      }
+      function html_encode(str){
+        //编码的过程
+        var s = ''
+        if(str.length ==0 ){
+          return''
+        }
+        s = str.replace(/&/g,'&gt;');
+        s = s.replace(/</g,"&lt;")
+        s = s.replace(/>/g,"&gt;")
+        s = s.replace(/ /g,"&nbsp;") //空格
+        s = s.replace(/\s/g,"&nbsp;") //空格
+        s = s.replace(/\'/g,"&#39;") //单引号
+        s = s.replace(/\"/g,"&#quot;") //双引号
+        s = s.replace(/\n/g,"<br>") //换行符
+        return s;
+      }
+    </script>
+  </body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+

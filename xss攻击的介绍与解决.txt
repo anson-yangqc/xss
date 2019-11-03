@@ -1,0 +1,150 @@
+启动项目代码（后台项目）
+npm start  localhost:3000
+
+xss攻击
+主要利用js和dom做攻击，涉及http/ cookie/ ajax等基本知识，需要服务端做一定的配合。
+
+
+================================================================================================
+xss的攻击方式
+【】反射型
+定义：发出请求时，XSS代码出现在URL中，作为输入提交到服务器端，服务器端解析后响应，XSS代码随响应内容一起传回浏览器，最后浏览器解析执行XSS代码。这个过程像一次反射，故叫反射型XSS
+
+攻击脚本写在url中（明文方式）
+
+
+手段包括：
+1盗用cookie，获取敏感信息。
+2破坏dom结构，插入未知内容。
+3利用flash
+4实现ddos攻击效果，目前最难以防护的攻击之一：
+ 最基本的攻击就是利用合理的客户端请求，占用过多的服务器资源，从而使合法用户无法得到服务器响应。
+ serverDdoco，当http请求头过长，webServe就会产生400，或者4开头的错误，如果超长的数据保存在cookie当中，就会让用户访问的时候造成http头超长，导致一些用户无法访问这个站点。
+
+浏览器默认会自动拦截这样的xss攻击，
+但如果接口设置 res.set('X-XSS-Protection',0)，那么浏览器默认的拦截就会关闭
+http://localhost:3000/?xss=<img src="null" onerror="alert(1)"/>
+http://localhost:3000/?xss=<p onclick="alert('OK')">CLICK</p>
+http://localhost:3000/?xss=<iframe src="//baidu.com"></iframe> //这样就置入的广告
+
+
+【】存储型
+定义:存储型XSS和反射型XSS的差别在于，提交的代码会存储在服务器端（数据库，内存（缓存系统），文件系统等），下次请求目标页面时不用再提交XSS代码。
+
+
+
+================================================================================================
+掌握XSS的防御措施
+1 编码 对用户输入的数据进行HTML Enity编码，对“” & <> 进行十进制或者转义字符 的编码
+2 过滤 
+移除用户上传的DOM属性，如onerror等、onclick、mouseove等事件
+移除用户上传的Style节点、Script节点、Iframe节点等
+
+3 校正
+避免直接HTML Enity解码
+使用DOM Parse（对dom字符串文本转成dom结构）转换 校正不匹对的DOM标签（进行第2步的过滤）
+
+================================================================================================
+================================================================================================
+
+实战
+特别是评论模块，最容易做XSS攻击
+
+【】输入内容：
+<p>sks <img src='null' onerror='alert(1)'/></p>
+头条，评论内容最后显示sks
+【】输入内容:
+<img src='null' onerror='alert(1)'/>
+头条，评论内容最后显示字符串 <img src='null' onerror='alert(1)'/>
+【】输入内容：
+<p>sks <img src='null' onerror='alert(1)'/><button onclick='alert(2)'>点击</button></p>
+头条，评论内容最后显示 sks 点击
+
+默认取innerText,只有闭合标签则显示字符串
+innerText === '' => $('<img/>')[0].outerHTML
+
+var tmp = $('<div>dd</div>').attr('id','bbq');
+tmp.html();   // dd
+tmp[0].outerHTML  // <div id="bbq">ddd</div>
+
+function html_encode(str){
+  //编码的过程
+  var s = ''
+  if(str.length ==0 ){
+    return''
+  }
+  s = str.replace(/&/g,'&gt;');
+  s = s.replace(/</g,"&lt;")
+  s = s.replace(/>/g,"&gt;")
+  s = s.replace(/ /g,"&nbsp;") //空格
+  s = s.replace(/\s/g,"&nbsp;") //空格
+  s = s.replace(/\'/g,"&#39;") //单引号
+  s = s.replace(/\"/g,"&#quot;") //双引号
+  s = s.replace(/\n/g,"<br>") //换行符
+  return s;
+}
+
+function parse(str){
+        //解码、校验的过程
+        var results = ''
+        //he.unescape解码、反转义 , 严格模式
+        //HTMLParser就是最后能正常显示的结果
+        try{
+          HTMLParser(he.unescape(str,{strict:true}),{
+            start:function(tag, attrs, unary){
+              //tag, attrs, unary 标签，属性，是否单标签
+              //遇到开始
+              if(tag == 'acript' || tag =='style' || tag=='iframe' || tag =='link' || tag == 'frame'){
+                return
+              }
+              results+='<'+tag;
+              for(let i=0,len=attrs.length;i<len;i++){
+                results +=" " + attrs[i].name + '="'+attrs[i].escaped + '"';//便利添加属性
+              }
+              results += (unary ?"/":"") + ">"
+            },
+            end:function(tag){
+              //遇到结束
+              //单标签不执行这里如img
+              results += "</"+tag + ">" //设置闭合标签
+            },
+            chars:function(text){
+              results += text; //遇到文本
+            },
+            comment:function(text){
+              results += "<!--"+text+"-->" //遇到注释
+            }
+          }) 
+          return results
+        }catch(e){
+          console.log(e)
+        } finally{
+        }
+      }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
