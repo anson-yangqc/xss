@@ -3,7 +3,11 @@ npm start  localhost:3000
 
 xss攻击（叫跨站脚本攻击）
 主要利用js和dom做攻击，涉及http/ cookie/ ajax等基本知识，需要服务端做一定的配合。
-
+项目常需要处理一下场景：
+<script>alert(1)</script>
+<script src='a.js'></script>
+<img src='1' onerror='alert(1)'/>
+<a href='javascript:alert(1)'>点击弹出</a>
 
 ================================================================================================
 xss的攻击方式
