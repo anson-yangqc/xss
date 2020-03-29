@@ -50,7 +50,18 @@ http://localhost:3000/?xss=<iframe src="//baidu.com"></iframe> //这样就置入
 避免直接HTML Enity解码
 使用DOM Parse（对dom字符串文本转成dom结构）转换 校正不匹对的DOM标签（进行第2步的过滤）
 
-4 使用工具库 cheerio ; npm i cheerio (将html解构变成对象，遍历出不要的dom；定义、使用白名单的方法)
+//4 使用工具库 cheerio ; npm i cheerio (将html解构变成对象，遍历出不要的dom；定义、使用白名单的方法)
+5 使用工具库 xss ； npm i xss
+var xssFilter = function(html){
+  if(!html) return  '';
+  var xss = require('xss')
+  var res = xss(html,{
+    onIgnoreTag:function(){
+      return ''
+    }
+  })
+  return res
+}
 ================================================================================================
 ================================================================================================
 
