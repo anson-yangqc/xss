@@ -87,6 +87,7 @@ function html_encode(str){
   s = s.replace(/\'/g,"&#39;") //单引号
   s = s.replace(/\"/g,"&#quot;") //双引号
   s = s.replace(/\n/g,"<br>") //换行符
+  s = s.replace(/javascript:[^'"]*/g,"") //换行符
   return s;
 }
 
