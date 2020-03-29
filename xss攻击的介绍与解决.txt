@@ -56,6 +56,9 @@ var xssFilter = function(html){
   if(!html) return  '';
   var xss = require('xss')
   var res = xss(html,{
+    whiteList:{
+      a:['href','title','target']
+    },
     onIgnoreTag:function(){
       return ''
     }
