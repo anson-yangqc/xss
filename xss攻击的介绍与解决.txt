@@ -147,13 +147,21 @@ function parse(str){
 
 
 == 【】攻击类型2 ==：CSRF（叫跨站请求伪造）
+特点：攻击者（B网站）并没有访问攻击网站（A网站）
 B网站向A网站请求，带上A网站的cookies，攻击A网站
 （这样很像是用postman，配置上A网站的cookies），攻击A网站
 
+【】防御1
 禁止第三方网站带cookie，A网站cookies设置same-site属性， 不允许不同域名的网站携带A网站的cookies，进行请求。
 （这样可以成功拦截对用户cookie的利用，就不能伪造用户身份）
 
 same-site属性只是 chrome和opera支持  chrome和opera是共享内核的
+
+【】防御2
+根据用户的行为，用户并没有访问A网站，所以可以考虑在A网站增加一些属性
+例如
+1提交之前增加图形验证码（验证码是随机的）
+2在页面中加入token，提交的时候带上token信息才可以提交成功
 
 
 
