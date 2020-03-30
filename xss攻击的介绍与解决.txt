@@ -1,7 +1,7 @@
 启动项目代码（后台项目）
 npm start  localhost:3000
 
-xss攻击（叫跨站脚本攻击）
+== 【】攻击类型1 ==：xss攻击（叫跨站脚本攻击）
 主要利用js和dom做攻击，涉及http/ cookie/ ajax等基本知识，需要服务端做一定的配合。
 项目常需要处理一下场景：
 <script>alert(1)</script>
@@ -146,6 +146,7 @@ function parse(str){
       }
 
 
+== 【】攻击类型2 ==：CSRF（叫跨站请求伪造）
 
 
 
