@@ -147,7 +147,13 @@ function parse(str){
 
 
 == 【】攻击类型2 ==：CSRF（叫跨站请求伪造）
+B网站向A网站请求，带上A网站的cookies，攻击A网站
+（这样很像是用postman，配置上A网站的cookies），攻击A网站
 
+禁止第三方网站带cookie，A网站cookies设置same-site属性， 不允许不同域名的网站携带A网站的cookies，进行请求。
+（这样可以成功拦截对用户cookie的利用，就不能伪造用户身份）
+
+same-site属性只是 chrome和opera支持  chrome和opera是共享内核的
 
 
 
