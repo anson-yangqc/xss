@@ -162,8 +162,8 @@ same-site属性只是 chrome和opera支持  chrome和opera是共享内核的
 例如
 1提交之前增加图形验证码（验证码是随机的），但是对用户体验会有一些伤害
 2在页面中加入token，提交的时候带上token信息才可以提交成功
-
-
+  token是一个随机的字符串，经过A页面才可以获取到这个token，
+  后端生成tokken，将token放到cookie中，
 
 
 
